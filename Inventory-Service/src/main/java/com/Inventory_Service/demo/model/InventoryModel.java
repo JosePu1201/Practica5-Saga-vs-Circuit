@@ -15,7 +15,7 @@ import lombok.Data;
 @Data
 public class InventoryModel {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "product_id")
     private Long productId;
     @Column(name = "quantity")
