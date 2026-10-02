@@ -21,6 +21,7 @@ import com.Shipping_Service.demo.service.ShippingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+//controlador de shipping
 @RestController
 @RequestMapping("/shipping")
 @RequiredArgsConstructor
