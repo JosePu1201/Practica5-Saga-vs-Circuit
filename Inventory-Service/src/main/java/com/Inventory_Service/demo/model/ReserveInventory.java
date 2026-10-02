@@ -1,4 +1,4 @@
-package com.Inventory_Service.demo.models;
+package com.Inventory_Service.demo.model;
 
 import java.time.LocalDateTime;
 

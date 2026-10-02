@@ -1,6 +1,5 @@
 package com.Payment_Service.demo.model;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.Payment_Service.demo.enums.StatusPayment;
@@ -13,12 +12,18 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "payments")
 @Data
-public class PaymentModel {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class PaymentsModel {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "payment_id")
