@@ -11,9 +11,11 @@ import com.Order_Service.demo.dto.OrderRequestDTO;
 import com.Order_Service.demo.dto.OrderResponseDTO;
 import com.Order_Service.demo.dto.OrderStatusUpdateDTO;
 import com.Order_Service.demo.enums.StatusOrder;
+import com.Order_Service.demo.event.OrderCreatedPayload;
 import com.Order_Service.demo.exception.OrderNotFoundException;
 import com.Order_Service.demo.exception.OrderStateConflictException;
 import com.Order_Service.demo.model.OrdersModel;
+import com.Order_Service.demo.publisher.OrderEventPublisher;
 import com.Order_Service.demo.repository.OrdersRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -23,12 +25,14 @@ import lombok.RequiredArgsConstructor;
 public class OrdersServiceImpl implements OrdersService {
 
     private final OrdersRepository ordersRepository;
+    private final OrderEventPublisher orderEventPublisher;
 
     @Override
     @Transactional
     public OrderResponseDTO createOrder(OrderRequestDTO requestDto) {
         LocalDateTime now = LocalDateTime.now();
 
+        // 1. Guardar localmente la orden en estado PENDING
         OrdersModel newOrder = new OrdersModel();
         newOrder.setCustomerId(requestDto.getCustomerId());
         newOrder.setTotal(requestDto.getTotal());
@@ -37,6 +41,19 @@ public class OrdersServiceImpl implements OrdersService {
         newOrder.setUpdatedAt(now);
 
         OrdersModel saved = ordersRepository.save(newOrder);
+
+        // 2. Disparar evento inicial de la Saga por coreografía
+        OrderCreatedPayload eventPayload = OrderCreatedPayload.builder()
+                .orderId(saved.getId())
+                .customerId(saved.getCustomerId())
+                .total(saved.getTotal())
+                .productId(requestDto.getProductId() != null ? requestDto.getProductId() : 1L)
+                .quantity(requestDto.getQuantity() != null ? requestDto.getQuantity() : 1)
+                .address(requestDto.getAddress() != null ? requestDto.getAddress() : "Dirección central por defecto")
+                .build();
+
+        orderEventPublisher.publishOrderCreated(eventPayload);
+
         return OrderResponseDTO.fromEntity(saved);
     }
 
@@ -50,7 +67,7 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<OrderResponseDTO> getAllOrders() {
+    public List getAllOrders() {
         return ordersRepository.findAll().stream()
                 .map(OrderResponseDTO::fromEntity)
                 .collect(Collectors.toList());
@@ -89,7 +106,6 @@ public class OrdersServiceImpl implements OrdersService {
             throw new OrderStateConflictException("El pedido con ID " + id + " ya se encuentra cancelado");
         }
 
-        // Cancelación lógica para transacciones compensatorias en Saga
         order.setStatus(StatusOrder.CANCELLED);
         order.setUpdatedAt(LocalDateTime.now());
 
