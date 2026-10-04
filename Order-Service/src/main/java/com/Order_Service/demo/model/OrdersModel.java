@@ -19,7 +19,7 @@ import com.Order_Service.demo.enums.StatusOrder;
 @Data
 public class OrdersModel {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_id")
     private Long id;
 

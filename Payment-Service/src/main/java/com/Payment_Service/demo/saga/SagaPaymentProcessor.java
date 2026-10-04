@@ -80,7 +80,7 @@ public class SagaPaymentProcessor {
         PaymentsModel savedPayment = paymentRepository.save(payment);
 
         // Regla determinista de simulación: total=9999 o customerId=99 simula fallo
-        boolean simulateFailure = (payload.getTotal() != null && payload.getTotal() == 9999)
+        boolean simulateFailure = (payload.getTotal() != null && payload.getTotal() > 500)
                 || (payload.getCustomerId() != null && payload.getCustomerId() == 99L);
 
         if (simulateFailure) {

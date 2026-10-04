@@ -20,7 +20,7 @@ import lombok.Data;
 @Data
 public class ShipmentsModel {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "shipment_id")
     private Long shipmentId;
 
